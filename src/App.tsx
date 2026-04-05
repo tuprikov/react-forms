@@ -1,9 +1,26 @@
-import { useForm, type FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const schema = z.object({
+    name: z
+        .string()
+        .min(3, { message: 'Name must be at least 3 characters long' }),
+    age: z
+        .number({ message: 'Age must be a number' })
+        .min(18, { message: 'Age must be at least 18' })
+})
+
+type FormData = z.infer<typeof schema>
 
 const App = () => {
-    const { register, handleSubmit } = useForm()
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm<FormData>({ resolver: zodResolver(schema) })
 
-    const onFormSubmit = (data: FieldValues) => {
+    const onFormSubmit = (data: FormData) => {
         console.log(data)
     }
 
@@ -19,16 +36,22 @@ const App = () => {
                         placeholder="Enter name"
                         className="border border-gray-200 px-4 py-2 rounded-xl"
                     />
+                    {errors.name && (
+                        <p className="text-red-500">{errors.name.message}</p>
+                    )}
                 </div>
                 <div className="flex flex-col gap-2">
                     <label htmlFor="age">Age</label>
                     <input
-                        {...register('age')}
+                        {...register('age', { valueAsNumber: true })}
                         id="age"
                         type="number"
                         placeholder="Enter age"
                         className="border border-gray-200 px-4 py-2 rounded-xl"
                     />
+                    {errors.age && (
+                        <p className="text-red-500">{errors.age.message}</p>
+                    )}
                 </div>
                 <button
                     type="submit"
