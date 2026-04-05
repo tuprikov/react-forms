@@ -16,12 +16,36 @@ type FormData = z.infer<typeof schema>
 const App = () => {
     const {
         register,
+        watch,
         handleSubmit,
         formState: { errors }
     } = useForm<FormData>({ resolver: zodResolver(schema) })
 
     const onFormSubmit = (data: FormData) => {
         console.log(data)
+    }
+
+    const nameValue = watch('name')
+    const ageValue = watch('age')
+
+    const isNameValid = () => {
+        try {
+            schema.shape.name.parse(nameValue)
+        }
+        catch (error) {
+            return false
+        }
+        return true
+    }
+
+    const isAgeValid = () => {
+        try {
+            schema.shape.age.parse(ageValue)
+        }
+        catch (error) {
+            return false
+        }
+        return true
     }
 
     return (
@@ -47,7 +71,8 @@ const App = () => {
                         id="age"
                         type="number"
                         placeholder="Enter age"
-                        className="border border-gray-200 px-4 py-2 rounded-xl"
+                        className="border border-gray-200 px-4 py-2 rounded-xl disabled:bg-gray-400"
+                        disabled={!isNameValid()}
                     />
                     {errors.age && (
                         <p className="text-red-500">{errors.age.message}</p>
@@ -55,7 +80,8 @@ const App = () => {
                 </div>
                 <button
                     type="submit"
-                    className="p-4 px-6 mt-4 bg-gray-800 text-white rounded-xl"
+                    className="p-4 px-6 mt-4 bg-gray-800 text-white rounded-xl hover:bg-gray-700 disabled:bg-gray-400"
+                    disabled={!isNameValid() || !isAgeValid()}
                 >
                     Save
                 </button>
